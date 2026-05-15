@@ -70,6 +70,7 @@ int main() {
         }
         free(detail);
     }
+    
 
     std::cout << "\nMandos originales ocultados. Manten esta ventana abierta para jugar.\n";
     std::cout << "Presiona una tecla para liberar los mandos y salir...";
