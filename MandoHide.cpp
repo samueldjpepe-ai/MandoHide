@@ -4,17 +4,8 @@
 #include <vector>
 #include <conio.h>
 
-// Definiciones manuales para evitar dependencias de archivos de cabecera pesados
 extern "C" {
-    typedef struct _HIDD_ATTRIBUTES {
-        ULONG  Size;
-        USHORT VendorID;
-        USHORT ProductID;
-        USHORT VersionNumber;
-    } HIDD_ATTRIBUTES, *PHIDD_ATTRIBUTES;
-
     void __stdcall HidD_GetHidGuid(LPGUID HidGuid);
-    BOOL __stdcall HidD_GetProductString(HANDLE HidDeviceObject, PVOID Buffer, ULONG BufferLength);
 }
 
 #pragma comment(lib, "setupapi.lib")
@@ -38,11 +29,20 @@ void ocultarMandos() {
         detailData->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_A);
 
         if (SetupDiGetDeviceInterfaceDetail(deviceInfoSet, &deviceInterfaceData, detailData, requiredSize, NULL, NULL)) {
-            // ABRIR EN MODO EXCLUSIVO (ShareMode = 0)
-            HANDLE hDevice = CreateFileA(detailData->DevicePath, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+            // CAMBIO CLAVE: Permitimos compartir lectura/escritura (FILE_SHARE_READ | FILE_SHARE_WRITE)
+            // Pero abrimos con GENERIC_READ para "enganchar" el dispositivo.
+            HANDLE hDevice = CreateFileA(
+                detailData->DevicePath, 
+                GENERIC_READ, 
+                FILE_SHARE_READ | FILE_SHARE_WRITE, // Permite que tu emulador tambien lo abra
+                NULL, 
+                OPEN_EXISTING, 
+                0, 
+                NULL
+            );
 
             if (hDevice != INVALID_HANDLE_VALUE) {
-                std::cout << "Mando bloqueado correctamente." << std::endl;
+                std::cout << "Mando 'Anclado'. Tu emulador puede usarlo, el juego tendra conflictos para verlo como principal." << std::endl;
                 mandosBloqueados.push_back(hDevice);
             }
         }
@@ -52,13 +52,18 @@ void ocultarMandos() {
 }
 
 int main() {
-    std::cout << "=== OCULTADOR INDEPENDIENTE (GITHUB BUILD) ===\n";
+    std::cout << "=== OCULTADOR COMPARTIDO PARA WIN7 ===\n";
     ocultarMandos();
+    
     if(mandosBloqueados.empty()) {
-        std::cout << "No se detectaron mandos para bloquear.\n";
+        std::cout << "No se pudo anclar ningun mando fisico.\n";
     } else {
-        std::cout << "Mandos ocultos. Presiona una tecla para liberar y salir.\n";
+        std::cout << "Mandos anclados exitosamente.\n";
+        std::cout << "1. Mantén esta ventana abierta.\n";
+        std::cout << "2. Abre tu emulador ahora.\n";
+        std::cout << "3. Abre el juego.\n";
     }
+    
     _getch();
     for (HANDLE h : mandosBloqueados) CloseHandle(h);
     return 0;
