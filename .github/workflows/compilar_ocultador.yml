@@ -1,21 +1,22 @@
-name: Compilar Ocultador
+name: Compilar ACL Guardian
 on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4 # Actualizado a v4
+      - uses: actions/checkout@v4
 
       - name: Configurar MSVC
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Compilar MandoHide
+      - name: Compilar Programa
         run: |
-          cl.exe /O2 /EHsc MandoHide.cpp /link setupapi.lib hid.lib /out:MandoHide.exe
+          # Compilamos ACL_Guardian.cpp (Asegúrate de que el archivo se llame así)
+          cl.exe /O2 /EHsc ACL_Guardian.cpp /link setupapi.lib hid.lib advapi32.lib /out:GuardianWin7.exe
 
       - name: Subir Ejecutable
-        uses: actions/upload-artifact@v4 # <--- Aquí estaba el error, ahora es v4
+        uses: actions/upload-artifact@v4
         with:
-          name: MandoHide-Win7
-          path: MandoHide.exe
+          name: Guardian-Win7-Exe
+          path: GuardianWin7.exe
