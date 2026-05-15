@@ -5,7 +5,7 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4 # Actualizado a v4
 
       - name: Configurar MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -15,7 +15,7 @@ jobs:
           cl.exe /O2 /EHsc MandoHide.cpp /link setupapi.lib hid.lib /out:MandoHide.exe
 
       - name: Subir Ejecutable
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # <--- Aquí estaba el error, ahora es v4
         with:
           name: MandoHide-Win7
           path: MandoHide.exe
