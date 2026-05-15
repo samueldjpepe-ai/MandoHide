@@ -1,0 +1,21 @@
+name: Compilar Ocultador
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configurar MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Compilar MandoHide
+        run: |
+          cl.exe /O2 /EHsc MandoHide.cpp /link setupapi.lib hid.lib /out:MandoHide.exe
+
+      - name: Subir Ejecutable
+        uses: actions/upload-artifact@v3
+        with:
+          name: MandoHide-Win7
+          path: MandoHide.exe
